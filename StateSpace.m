@@ -25,14 +25,14 @@ disp('Motor/Fan Force and Torque constants')
 % replaced by experimentally determined values
 Vhov = 8; % Voltage supplied to front motors for hover
 kD = .004; % drag constant of props (assumed from prop calc)
-kt = .1901; % torque constant of motor (mN.m/A) (published on website)
+Kt = .1901; % torque constant of motor (mN.m/A) (published on website)
 kB = 0; % torque constant of rear motor (Nm/A)
 keb = kB;
 Ra = .29; % armature resistance (ohms)
 CT = 0.0828; %thrust coefficient for propeller 20-10 estimated propcalc
 kl = 0.7; % coefficient of lift for props
 klrear = 0.5; % coefficient of lift for rear fan
-ke = kt; %back emf constant = torque const in SI units
+ke = Kt; %back emf constant = torque const in SI units
 Kmp = ((.1901)^2/0.56 + 0.008*3000/60); %(bm + kt*ke/Ra + kD*theta_0_dot);% was 0.06;
 Kd = 0; % kD*theta_0_dot*kt/(Ra*Kmp); % Nm per volt Front Props (not measured)
 Kdr = 0; % Nm per volt Rear Prop/Fan (not measured)
@@ -46,32 +46,48 @@ Rd = l3*Kp/Jr;
 Zd = Kp/Mp;
 
 
-A =[ 0  	0       0       0       0       0       0       0           0
-     0      0       0       0       0       1       0       0           0
-     0      0       0       0       0       0       1       0           0
-     0      0       0       0       0       0       0       Zd          Zd
-     0  	0       0       0       0       0       0       0           0   %%Z (we added)
-     0      0       0       0       0       0       0       -Pd         -Pd
-     0      0       0       0       0       0       0       -Rd         Rd
-     0      0       0       0       0       0       0       -Kmp/Jpr    0
-     0      0       0       0       0       0       0       0           -Kmp/Jpr ];
+A =[ 0  	1       0       0       0       0       0       0           0       0               0       0       0       0        0          0
+     0      0       0       0       0       0       0       0           0       0               0       0       0       0        0          0
+     0      0       0       1       0       0       0       0           0       0               0       0       0       0        0          0
+     0      0       0       0       0       0       0       (l1*Kp)/Jp  0       (l1*Kp)/Jp      0       0       0       0        0          0
+     0  	0       0       0       0       1       0       0           0       0               0       0       0       0        0          0
+     0      0       0       0       0       0       0       (l3*Kp)/Jr  0       -(l3*Kp)/Jr     0       0       0       0        0          0
+     0      0       0       0       0       0       0       0           0       0               0       0       0       0        0          0
+     0      0       0       0       0       0       0       -Kmp/Jp     0       0               0       0       0       0        0          0
+     0      0       0       0       0       0       0       0           0       0               0       0       0       0        0          0
+     0      0       0       0       0       0       0       0           0       -Kmp/Jp         0       0       0       0        0          0
+     0      0       0       0       0       0       0       0           0       0               0       1       0       0        0          0
+     0      0       0       0       0       0       0       0           0       0               0       0       0       0        0          0
+     0      0       0       0       0       0       0       0           0       0               0       0       0       0        0          0
+     0      0       0       0       0       0       0       0           0       0               0       0       0       0        0          0
+     0      0       0       0       0       0       0       0           0       0               0       0       0       0        0          0
+     0      0       0       0       0       0       0       Kp/Mp       0       Kp/Mp           0       0       0       0        0          0
+];
+      
 
 
-
-B  = [ Kd               -Kd              Kdr         l3*Kp*Vhov/Jy       -l3*Kp*Vhov/Jy 
+B  = [ 0                0                0           0                   0
+       0                0                Kdr         (l3*Kp*Vhov)/Jy     -(l3*Kp*Vhov)/Jy
+       0                0                0           0                   0
+       0                0                -(l2*Kr)/Jp 0                   0
+       0                0                0           0                   0
+       0                0                0           0                   0
+       0                0                0           0                   0  
+       Kt/(Ra*Jp)       0                0           0                   0
+       0                0                0           0                   0
+       0                Kt/(Ra*Jp)       0           0                   0
+       0                0                0           0                   0
+       0                0                0           (Kp*Vhov)/Mp        (Kp*Vhov)/Mp
+       0                0                0           0                   0
        0                0                0           0                   0
        0                0                0           0                   0
        0                0                -Kr/Mp      0                   0
-       0                0                0           0                   0  %%Z (we added)
-       0                0                l2*Kr/Jp    0                   0
-       0                0                0           0                   0 
-       kt/(Ra*Jpr)      0                0           0                   0 
-       0                kt/(Ra*Jpr)      0           0                   0  ]; 
+  ]; 
 
 
 
 
-C = [0     0       0       1       0       0       0       0       0];  %%output = z'
+C =[ 0  	0       0       0       0       0       0       0           0       0               0       0       0       0        0          1];
 
 
 D = zeros(1, 5);
@@ -81,13 +97,13 @@ StateS = ss(A,B,C,D);
 allTransferFunctions = tf(StateS);
 
 [Zdot_VL_num, Zdot_VL_de] = tfdata(allTransferFunctions(1,1),'v');
-Zdot_VL = tf(Zdot_VL_num, Zdot_VL_de);
+Zdot_VL = tf(Zdot_VL_num, Zdot_VL_de)
 
 [Zdot_VR_num, Zdot_VR_de] = tfdata(allTransferFunctions(1,2),'v');
-Zdot_VR = tf(Zdot_VR_num, Zdot_VR_de);
+Zdot_VR = tf(Zdot_VR_num, Zdot_VR_de)
 
 [Zdot_VB_num, Zdot_VB_de] = tfdata(allTransferFunctions(1,3),'v');
-Zdot_VB = tf(Zdot_VB_num, Zdot_VB_de);
+Zdot_VB = tf(Zdot_VB_num, Zdot_VB_de)
 
 
 
