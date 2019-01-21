@@ -87,23 +87,52 @@ B  = [ 0                0                0           0                   0
 
 
 
-C =[ 0  	0       0       0       0       0       0       0           0       0               0       0       0       0        0          1];
+C =[ 0  	0       1       0       0       0       0       0           0       0         0       0       0       0        0          0
+     0  	0       0       0       1       0       0       0           0       0         0       0       0       0        0          0
+     0  	0       0       0       0       0       0       0           0       0         0       0       0       0        0          1
+];%%pitch - roll - zdot
 
 
-D = zeros(1, 5);
+D = zeros(3, 5);
 
 
 StateS = ss(A,B,C,D);
 allTransferFunctions = tf(StateS);
 
-[Zdot_VL_num, Zdot_VL_de] = tfdata(allTransferFunctions(1,1),'v');
-Zdot_VL = tf(Zdot_VL_num, Zdot_VL_de)
+[Zdot_VL_num, Zdot_VL_den] = tfdata(allTransferFunctions(3,1),'v');
+Zdot_VL = tf(Zdot_VL_num, Zdot_VL_den);
 
-[Zdot_VR_num, Zdot_VR_de] = tfdata(allTransferFunctions(1,2),'v');
-Zdot_VR = tf(Zdot_VR_num, Zdot_VR_de)
+[Zdot_VR_num, Zdot_VR_den] = tfdata(allTransferFunctions(3,2),'v');
+Zdot_VR = tf(Zdot_VR_num, Zdot_VR_den);
 
-[Zdot_VB_num, Zdot_VB_de] = tfdata(allTransferFunctions(1,3),'v');
-Zdot_VB = tf(Zdot_VB_num, Zdot_VB_de)
+[Zdot_VB_num, Zdot_VB_den] = tfdata(allTransferFunctions(3,3),'v');
+Zdot_VB = tf(Zdot_VB_num, Zdot_VB_den);
+
+integral_transform = tf([1], [1 0]);
+Z_VL = series(integral_transform, Zdot_VL)
+Z_VR = series(integral_transform, Zdot_VR)
+Z_VB = series(integral_transform, Zdot_VB)
+
+[pitch_VL_num, pitch_VL_den] = tfdata(allTransferFunctions(1,1),'v');
+pitch_VL = tf(pitch_VL_num, pitch_VL_den)
+
+[pitch_VR_num, pitch_VR_den] = tfdata(allTransferFunctions(1,2),'v');
+pitch_VR = tf(pitch_VR_num, pitch_VR_den)
+
+[pitch_VB_num, pitch_VB_den] = tfdata(allTransferFunctions(1,3),'v');
+pitch_VB = tf(pitch_VB_num, pitch_VB_den)
+
+[roll_VL_num, roll_VL_den] = tfdata(allTransferFunctions(2,1),'v');
+roll_VL = tf(roll_VL_num, roll_VL_den)
+
+[roll_VR_num, roll_VR_den] = tfdata(allTransferFunctions(2,2),'v');
+roll_VR = tf(roll_VR_num, roll_VR_den)
+
+[roll_VB_num, roll_VB_den] = tfdata(allTransferFunctions(2,3),'v');
+roll_VB = tf(roll_VB_num, roll_VB_den)
+
+
+
 
 
 
