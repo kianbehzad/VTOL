@@ -90,10 +90,13 @@ B  = [ 0                0                0           0                   0
 C =[ 0  	0       1       0       0       0       0       0           0       0         0       0       0       0        0          0
      0  	0       0       0       1       0       0       0           0       0         0       0       0       0        0          0
      0  	0       0       0       0       0       0       0           0       0         0       0       0       0        0          1
+     0  	0       0       0       0       0       0       1           0       0         0       0       0       0        0          0
+     0  	0       0       0       0       0       0       0           0       1         0       0       0       0        0          0
+
 ];%%pitch - roll - zdot
 
 
-D = zeros(3, 5);
+D = zeros(5, 5);
 
 
 StateS = ss(A,B,C,D);
@@ -131,6 +134,11 @@ roll_VR = tf(roll_VR_num, roll_VR_den)
 [roll_VB_num, roll_VB_den] = tfdata(allTransferFunctions(2,3),'v');
 roll_VB = tf(roll_VB_num, roll_VB_den)
 
+[thetaLdot_VL_num, thetaLdot_VL_den] = tfdata(allTransferFunctions(4,1),'v');
+thetaLdot_VL = tf(thetaLdot_VL_num, thetaLdot_VL_den)
+
+[thetaRdot_VR_num, thetaRdot_VR_den] = tfdata(allTransferFunctions(5,2),'v');
+thetaRdot_VR = tf(thetaRdot_VR_num, thetaRdot_VR_den)
 
 
 
