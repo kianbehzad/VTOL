@@ -135,11 +135,13 @@ roll_VR = tf(roll_VR_num, roll_VR_den)
 roll_VB = tf(roll_VB_num, roll_VB_den)
 
 [thetaLdot_VL_num, thetaLdot_VL_den] = tfdata(allTransferFunctions(4,1),'v');
-thetaLdot_VL = tf(thetaLdot_VL_num, thetaLdot_VL_den)
+thetaLdot_VL = tf(thetaLdot_VL_num, thetaLdot_VL_den);
 
 [thetaRdot_VR_num, thetaRdot_VR_den] = tfdata(allTransferFunctions(5,2),'v');
-thetaRdot_VR = tf(thetaRdot_VR_num, thetaRdot_VR_den)
+thetaRdot_VR = tf(thetaRdot_VR_num, thetaRdot_VR_den);
 
+thetaL_VL = series(integral_transform, thetaLdot_VL)
+thetaR_VR = series(integral_transform, thetaRdot_VR)
 
 
 
